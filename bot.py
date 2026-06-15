@@ -1,6 +1,10 @@
-import telebot, random, os, json, datetime
+import telebot
+import random
+import os
+import json
+import datetime
 
-bot = telebot.TeleBot("8992035812:AAFuELYlZ1aREefCEff6jLkIbAZV7tyfBTI")
+bot = telebot.TeleBot("8992035812:AAEkWKoCH1hviSDEnLdEMOoaT6D60L0MVts")
 ADMIN_ID = 7523074495  
 user_sessions = {}
 DB_FILE = "bot_users.json"
@@ -63,8 +67,8 @@ kanji_list = [
     {"kanji": "分", "reading": "わける", "meaning": "daqiqa", "image_path": "kanji_images/daqiqa.png"},
     {"kanji": "間", "reading": "あいだ", "meaning": "oraliq", "image_path": "kanji_images/oraliq.png"},
     {"kanji": "会", "reading": "あう", "meaning": "uchrashuv", "image_path": "kanji_images/uchrashuv.png"},
-    {"kanji": "社", "reading": "야しろ", "meaning": "jamiyat", "image_path": "jamiyat.png"},
-    {"kanji": "場", "reading": "ばsho", "meaning": "joy", "image_path": "kanji_images/joy.png"},
+    {"kanji": "社", "reading": "やしろ", "meaning": "jamiyat", "image_path": "kanji_images/jamiyat.png"},
+    {"kanji": "場", "reading": "ばしょ", "meaning": "joy", "image_path": "kanji_images/joy.png"},
     {"kanji": "自", "reading": "みずkara", "meaning": "o'zi", "image_path": "kanji_images/ozi.png"},
     {"kanji": "動", "reading": "うgoく", "meaning": "harakat", "image_path": "kanji_images/harakat.png"},
     {"kanji": "持", "reading": "moつ", "meaning": "ushlamoq", "image_path": "kanji_images/ushlamoq.png"},
@@ -87,7 +91,7 @@ words_list = [
     {"jp": "えき", "uz": "vokzal", "level": "N5"}, {"jp": "かんji", "uz": "ieroglif", "level": "N5"},
     {"jp": "きっぷ", "uz": "bilet", "level": "N5"}, {"jp": "くるma", "uz": "mashina", "level": "N5"},
     {"jp": "さいふ", "uz": "hamyon", "level": "N5"}, {"jp": "しんbun", "uz": "gazeta", "level": "N5"},
-    {"jp": "あんぜん", "uz": "xavfsiz", "level": "N4"}, {"jp": "いみ", "uz": "ma'no", "level": "N4"},
+    {"jp": "あんぜん", "uz": "xavfsiz", "level": "N4"}, {"jp": "いmi", "uz": "ma'no", "level": "N4"},
     {"jp": "うけつけ", "uz": "ro'yxatxona", "level": "N4"}, {"jp": "うごく", "uz": "qimirlamoq", "level": "N4"},
     {"jp": "うそ", "uz": "yolg'on", "level": "N4"}, {"jp": "おこる", "uz": "g'azablanmoq", "level": "N4"},
     {"jp": "おmoいだす", "uz": "eslamoq", "level": "N4"}, {"jp": "おもちゃ", "uz": "o'yinchoq", "level": "N4"},
@@ -101,16 +105,16 @@ words_list = [
     {"jp": "さいきん", "uz": "shu kunlarda", "level": "N4"}, {"jp": "こんど", "uz": "keyingi safar", "level": "N4"},
     {"jp": "あいさつ", "uz": "salomlashish", "level": "N4"}, {"jp": "あじ", "uz": "ta'm / maza", "level": "N4"},
     {"jp": "あした", "uz": "ertaga", "level": "N5"}, {"jp": "あたま", "uz": "bosh", "level": "N5"},
-    {"jp": "あついつい", "uz": "issiq", "level": "N5"}, {"jp": "あぶら", "uz": "yog'", "level": "N4"},
+    {"jp": "あついつい", "uz": "issiq", "level": "N5"}, {"jp": "あぶra", "uz": "yog'", "level": "N4"},
     {"jp": "あめ", "uz": "yomg'ir", "level": "N5"}, {"jp": "あんしん", "uz": "xotirjamlik", "level": "N4"},
-    {"jp": "あんない", "uz": "boshlash", "level": "N4"}, {"jp": "いい", "uz": "yaxshi", "level": "N5"},
+    {"jp": "あんnai", "uz": "boshlash", "level": "N4"}, {"jp": "いい", "uz": "yaxshi", "level": "N5"},
     {"jp": "いえ", "uz": "uy", "level": "N5"}, {"jp": "いけ", "uz": "hovuz", "level": "N5"},
     {"jp": "いけん", "uz": "fikr", "level": "N4"}, {"jp": "いそがしい", "uz": "band", "level": "N5"},
     {"jp": "いたい", "uz": "og'riqli", "level": "N5"}, {"jp": "いちば", "uz": "bozor", "level": "N4"}
 ]
-
 def main_menu_keyboard():
     return telebot.types.ReplyKeyboardMarkup(resize_keyboard=True).add("📊 Kanji Test", "📝 So'z Test (N4/N5)").add("🏆 Reyting (Top-10)", "👤 Shaxsiy Profil").add("❓ Adminga murojaat")
+
 @bot.message_handler(commands=['start'])
 def start(m):
     user_data = update_user_stats(m.chat.id, m.from_user.first_name, check_streak=True)
@@ -162,7 +166,8 @@ def send_next_question(chat_id):
             parse_mode="HTML", 
             reply_markup=main_menu_keyboard()
         )
-        del user_sessions[chat_id]; return
+        if chat_id in user_sessions: del user_sessions[chat_id]
+        return
 
     item = s["questions"][s["current_index"]]
     if s["type"] == "kanji":
@@ -190,19 +195,26 @@ def send_next_question(chat_id):
 @bot.message_handler(func=lambda m: m.chat.id == ADMIN_ID and m.reply_to_message)
 def admin_reply(m):
     try:
-        uid = m.reply_to_message.forward_from.id if m.reply_to_message.forward_from else int(m.reply_to_message.text.split("ID: ").split("\n").strip())
+        if m.reply_to_message.forward_from:
+            uid = m.reply_to_message.forward_from.id
+        else:
+            lines = m.reply_to_message.text.split("\n")
+            id_line = [l for l in lines if "User ID:" in l]
+            uid = int(id_line.split("User ID:").strip())
+            
         bot.copy_message(uid, ADMIN_ID, m.message_id)
         bot.send_message(ADMIN_ID, "✅ Yuborildi.")
-    except Exception as e: bot.send_message(ADMIN_ID, f"❌ Xato: {e}")
+    except Exception as e: 
+        bot.send_message(ADMIN_ID, f"❌ Xato: {e}")
 
 @bot.message_handler(func=lambda m: True)
 def handle_messages(m):
-    cid, txt = m.chat.id, m.text.strip()
+    cid, txt = m.chat.id, m.text.strip() if m.text else ""
     
     if txt == "📊 Kanji Test": ask_test_count(cid, "kanji"); return
     if txt == "📝 So'z Test (N4/N5)": ask_test_count(cid, "word"); return
     
-    if txt == "🏆 Reyting (Top-10)" or txt == "👤 Shaxsiy Profil":
+    if txt in ["🏆 Reyting (Top-10)", "👤 Shaxsiy Profil"]:
         db = load_db()
         sorted_users = sorted(db.items(), key=lambda x: x.get("points", 0), reverse=True)
         user_place = next((i + 1 for i, (uid, _) in enumerate(sorted_users) if uid == str(cid)), 999)
@@ -231,6 +243,9 @@ def handle_messages(m):
         bot.send_message(cid, "✉️ Xabaringizni kiriting:", reply_markup=main_menu_keyboard()); return
 
     if cid in user_sessions:
+        if txt in ["📊 Kanji Test", "📝 So'z Test (N4/N5)", "🏆 Reyting (Top-10)", "👤 Shaxsiy Profil", "❓ Adminga murojaat"]:
+            bot.send_message(cid, "⚠️ Iltimos, oldin test variantlaridan birini tanlang!")
+            return
         s = user_sessions[cid]
         if txt == s["correct_string"]:
             s["correct_count"] += 1
@@ -246,5 +261,7 @@ def handle_messages(m):
         bot.send_message(ADMIN_ID, f"📩 <b>Yangi xabar!</b>\nUser ID: {cid}\n\nJavob berish uchun <b>Reply</b> qiling.", parse_mode="HTML")
         bot.send_message(cid, "⏱ Xabaringiz adminga yetkazildi.")
 
-bot.remove_webhook()
-bot.infinity_polling()
+if __name__ == "__main__":
+    bot.remove_webhook()
+    print("Bot ishga tushdi...")
+    bot.infinity_polling()
