@@ -119,7 +119,7 @@ def main_menu_keyboard():
 def start(m):
     user_data = update_user_stats(m.chat.id, m.from_user.first_name, check_streak=True)
     db = load_db()
-    sorted_users = sorted(db.items(), key=lambda x: x.get("points", 0), reverse=True)
+    sorted_users = sorted(db.items(), key=lambda x: x[1].get("points", 0), reverse=True)
     user_place = next((i + 1 for i, (uid, _) in enumerate(sorted_users) if uid == str(m.chat.id)), 999)
     welcome_text = (
         f"🎌 <b>JLPT N4/N5 Barqaror Test Bot v21.5</b>\n\n"
@@ -135,8 +135,10 @@ def ask_test_count(chat_id, mode):
     bot.register_next_step_handler(m, lambda msg: start_quiz_session(msg, mode))
 
 def start_quiz_session(m, mode):
-    try: total = int(m.text.strip())
-    except: total = 5
+    try: 
+        total = int(m.text.strip())
+    except: 
+        total = 5
     base = kanji_list if mode == "kanji" else words_list
     user_sessions[m.chat.id] = {"questions": random.sample(base, min(total, len(base))), "current_index": 0, "correct_count": 0, "total": min(total, len(base)), "type": mode}
     send_next_question(m.chat.id)
@@ -151,7 +153,7 @@ def send_next_question(chat_id):
         update_user_stats(chat_id, name, points_to_add=earned_points)
         
         db = load_db()
-        sorted_users = sorted(db.items(), key=lambda x: x.get("points", 0), reverse=True)
+        sorted_users = sorted(db.items(), key=lambda x: x[1].get("points", 0), reverse=True)
         user_place = next((i + 1 for i, (uid, _) in enumerate(sorted_users) if uid == str(chat_id)), 999)
         
         leaderboard = "🏆 <b>SHOHONA REYTING JADVALI (TOP-5):</b>\n====================\n"
@@ -199,8 +201,8 @@ def admin_reply(m):
             uid = m.reply_to_message.forward_from.id
         else:
             lines = m.reply_to_message.text.split("\n")
-            id_line = [l for l in lines if "User ID:" in l]
-            uid = int(id_line.split("User ID:").strip())
+            id_line = [l for l in lines if "User ID:" in l][0]
+            uid = int(id_line.split("User ID:")[1].strip())
             
         bot.copy_message(uid, ADMIN_ID, m.message_id)
         bot.send_message(ADMIN_ID, "✅ Yuborildi.")
@@ -216,7 +218,7 @@ def handle_messages(m):
     
     if txt in ["🏆 Reyting (Top-10)", "👤 Shaxsiy Profil"]:
         db = load_db()
-        sorted_users = sorted(db.items(), key=lambda x: x.get("points", 0), reverse=True)
+        sorted_users = sorted(db.items(), key=lambda x: x[1].get("points", 0), reverse=True)
         user_place = next((i + 1 for i, (uid, _) in enumerate(sorted_users) if uid == str(cid)), 999)
 
         if txt == "🏆 Reyting (Top-10)":
@@ -240,13 +242,18 @@ def handle_messages(m):
             bot.send_message(cid, output, parse_mode="HTML", reply_markup=main_menu_keyboard()); return
 
     if txt == "❓ Adminga murojaat":
-        bot.send_message(cid, "✉️ Xabaringizni kiriting:", reply_markup=main_menu_keyboard()); return
+        bot.send_message(cid, "✉️ Xabaringizni kiriting. Admin tez orada javob beradi:", reply_markup=main_menu_keyboard())
+        return
 
+    # Test jarayonini tekshirish
     if cid in user_sessions:
-        if txt in ["📊 Kanji Test", "📝 So'z Test (N4/N5)", "🏆 Reyting (Top-10)", "👤 Shaxsiy Profil", "❓ Adminga murojaat"]:
-            bot.send_message(cid, "⚠️ Iltimos, oldin test variantlaridan birini tanlang!")
-            return
         s = user_sessions[cid]
+        # Agar test paytida menyu tugmasini bossa, ogohlantiramiz va testni davom ettiramiz
+        if txt in ["📊 Kanji Test", "📝 So'z Test (N4/N5)", "🏆 Reyting (Top-10)", "👤 Shaxsiy Profil", "❓ Adminga murojaat"]:
+            bot.send_message(cid, "⚠️ Iltimos, avval joriy testni yakunlang!")
+            send_next_question(cid)
+            return
+            
         if txt == s["correct_string"]:
             s["correct_count"] += 1
             bot.send_message(cid, "✅ To‘g‘ri!")
@@ -256,6 +263,7 @@ def handle_messages(m):
         send_next_question(cid)
         return
 
+    # Oddiy xabarlarni adminga yo'naltirish (Faqat testdan tashqari vaqtda)
     if not str(cid).startswith("-") and cid != ADMIN_ID:
         bot.forward_message(ADMIN_ID, cid, m.message_id)
         bot.send_message(ADMIN_ID, f"📩 <b>Yangi xabar!</b>\nUser ID: {cid}\n\nJavob berish uchun <b>Reply</b> qiling.", parse_mode="HTML")
@@ -263,5 +271,6 @@ def handle_messages(m):
 
 if __name__ == "__main__":
     bot.remove_webhook()
-    print("Bot ishga tushdi...")
+    print("Bot muvaffaqiyatli ishga tushdi...")
     bot.infinity_polling()
+
