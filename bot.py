@@ -1,6 +1,6 @@
 import telebot, random, os, json, datetime
 
-bot = telebot.TeleBot("8992035812:AAE0rGeTagE0CaxnjkiSyV3ZdgAgH6vlsTw")
+bot = telebot.TeleBot("8992035812:AAFuELYlZ1aREefCEff6jLkIbAZV7tyfBTI")
 ADMIN_ID = 7523074495  
 user_sessions = {}
 DB_FILE = "bot_users.json"
@@ -64,7 +64,7 @@ kanji_list = [
     {"kanji": "間", "reading": "あいだ", "meaning": "oraliq", "image_path": "kanji_images/oraliq.png"},
     {"kanji": "会", "reading": "あう", "meaning": "uchrashuv", "image_path": "kanji_images/uchrashuv.png"},
     {"kanji": "社", "reading": "야しろ", "meaning": "jamiyat", "image_path": "jamiyat.png"},
-    {"kanji": "場", "reading": "ばしょ", "meaning": "joy", "image_path": "kanji_images/joy.png"},
+    {"kanji": "場", "reading": "ばsho", "meaning": "joy", "image_path": "kanji_images/joy.png"},
     {"kanji": "自", "reading": "みずkara", "meaning": "o'zi", "image_path": "kanji_images/ozi.png"},
     {"kanji": "動", "reading": "うgoく", "meaning": "harakat", "image_path": "kanji_images/harakat.png"},
     {"kanji": "持", "reading": "moつ", "meaning": "ushlamoq", "image_path": "kanji_images/ushlamoq.png"},
@@ -76,24 +76,24 @@ kanji_list = [
 
 words_list = [
     {"jp": "あさ", "uz": "ertalab", "level": "N5"}, {"jp": "いぬ", "uz": "it", "level": "N5"},
-    {"jp": "みせ", "uz": "do'kon", "level": "N5"}, {"jp": "ともだchи", "uz": "do'st", "level": "N5"},
-    {"jp": "しけん", "uz": "imtihon", "level": "N4"}, {"jp": "あぶない", "uz": "xavfli", "level": "N5"},
-    {"jp": "いしゃ", "uz": "shifokor", "level": "N5"}, {"jp": "おくる", "uz": "yubormoq", "level": "N5"},
-    {"jp": "おみやげ", "uz": "sovg'a", "level": "N5"}, {"jp": "かいもの", "uz": "xarid", "level": "N5"},
+    {"jp": "みせ", "uz": "do'kon", "level": "N5"}, {"jp": "ともだち", "uz": "do'st", "level": "N5"},
+    {"jp": "しけん", "uz": "imtihon", "level": "N4"}, {"jp": "あbuない", "uz": "xavfli", "level": "N5"},
+    {"jp": "いsha", "uz": "shifokor", "level": "N5"}, {"jp": "おくる", "uz": "yubormoq", "level": "N5"},
+    {"jp": "おmiяge", "uz": "sovg'a", "level": "N5"}, {"jp": "かいもの", "uz": "xarid", "level": "N5"},
     {"jp": "かぜ", "uz": "shamollash", "level": "N5"}, {"jp": "あかるい", "uz": "yorug'", "level": "N5"},
-    {"jp": "あね", "uz": "mening opam", "level": "N5"}, {"jp": "あに", "uz": "mening akam", "level": "N5"},
-    {"jp": "いもうと", "uz": "mening singlim", "level": "N5"}, {"jp": "おtouと", "uz": "mening ukam", "level": "N5"},
-    {"jp": "うみ", "uz": "dengiz", "level": "N5"}, {"jp": "えいが", "uz": "kino", "level": "N5"},
-    {"jp": "えき", "uz": "vokzal", "level": "N5"}, {"jp": "かんじ", "uz": "ieroglif", "level": "N5"},
-    {"jp": "きっぷ", "uz": "bilet", "level": "N5"}, {"jp": "くるま", "uz": "mashina", "level": "N5"},
-    {"jp": "さいふ", "uz": "hamyon", "level": "N5"}, {"jp": "しんぶん", "uz": "gazeta", "level": "N5"},
+    {"jp": "あね", "uz": "mening opam", "level": "N5"}, {"jp": "あni", "uz": "mening akam", "level": "N5"},
+    {"jp": "いもうto", "uz": "mening singlim", "level": "N5"}, {"jp": "おとうto", "uz": "mening ukam", "level": "N5"},
+    {"jp": "うmi", "uz": "dengiz", "level": "N5"}, {"jp": "えいが", "uz": "kino", "level": "N5"},
+    {"jp": "えき", "uz": "vokzal", "level": "N5"}, {"jp": "かんji", "uz": "ieroglif", "level": "N5"},
+    {"jp": "きっぷ", "uz": "bilet", "level": "N5"}, {"jp": "くるma", "uz": "mashina", "level": "N5"},
+    {"jp": "さいふ", "uz": "hamyon", "level": "N5"}, {"jp": "しんbun", "uz": "gazeta", "level": "N5"},
     {"jp": "あんぜん", "uz": "xavfsiz", "level": "N4"}, {"jp": "いみ", "uz": "ma'no", "level": "N4"},
     {"jp": "うけつけ", "uz": "ro'yxatxona", "level": "N4"}, {"jp": "うごく", "uz": "qimirlamoq", "level": "N4"},
     {"jp": "うそ", "uz": "yolg'on", "level": "N4"}, {"jp": "おこる", "uz": "g'azablanmoq", "level": "N4"},
-    {"jp": "おもいだす", "uz": "eslamoq", "level": "N4"}, {"jp": "おもちゃ", "uz": "o'yinchoq", "level": "N4"},
+    {"jp": "おmoいだす", "uz": "eslamoq", "level": "N4"}, {"jp": "おもちゃ", "uz": "o'yinchoq", "level": "N4"},
     {"jp": "かたづける", "uz": "yig'ishtirmoq", "level": "N4"}, {"jp": "かん가える", "uz": "o'ylamoq", "level": "N4"},
     {"jp": "가んばる", "uz": "harakat qilmoq", "level": "N4"}, {"jp": "きびしい", "uz": "qattiqqo'l", "level": "N4"},
-    {"jp": "くうこう", "uz": "aeroport", "level": "N4"}, {"jp": "おくじょう", "uz": "tom", "level": "N4"},
+    {"jp": "くうkou", "uz": "aeroport", "level": "N4"}, {"jp": "おくじょう", "uz": "tom", "level": "N4"},
     {"jp": "ちか", "uz": "yer osti", "level": "N4"}, {"jp": "しゅっぱつ", "uz": "jo'nab ketish", "level": "N4"},
     {"jp": "とうちゃく", "uz": "yetib kelish", "level": "N4"}, {"jp": "あtsuめる", "uz": "yig'moq", "level": "N4"},
     {"jp": "わかれる", "uz": "ajralishmoq", "level": "N4"}, {"jp": "せmai", "uz": "tor", "level": "N4"},
@@ -105,7 +105,7 @@ words_list = [
     {"jp": "あめ", "uz": "yomg'ir", "level": "N5"}, {"jp": "あんしん", "uz": "xotirjamlik", "level": "N4"},
     {"jp": "あんない", "uz": "boshlash", "level": "N4"}, {"jp": "いい", "uz": "yaxshi", "level": "N5"},
     {"jp": "いえ", "uz": "uy", "level": "N5"}, {"jp": "いけ", "uz": "hovuz", "level": "N5"},
-    {"jp": "いけん", "uz": "fikr", "level": "N4"}, {"jp": "いそ가しい", "uz": "band", "level": "N5"},
+    {"jp": "いけん", "uz": "fikr", "level": "N4"}, {"jp": "いそがしい", "uz": "band", "level": "N5"},
     {"jp": "いたい", "uz": "og'riqli", "level": "N5"}, {"jp": "いちば", "uz": "bozor", "level": "N4"}
 ]
 
@@ -118,10 +118,10 @@ def start(m):
     sorted_users = sorted(db.items(), key=lambda x: x.get("points", 0), reverse=True)
     user_place = next((i + 1 for i, (uid, _) in enumerate(sorted_users) if uid == str(m.chat.id)), 999)
     welcome_text = (
-        f"🎌 <b>JLPT N4/N5 Akademik Test Bot v20.0</b>\n\n"
-        f"🔥 Kunlik zanjir: <b>{user_data['streak']} kun</b>\n"
+        f"🎌 <b>JLPT N4/N5 Barqaror Test Bot v21.5</b>\n\n"
+        f"🔥 Kunlik faollik: <b>{user_data['streak']} kun</b>\n"
         f"🏆 Jami ballar: <b>{user_data['points']} ball</b>\n"
-        f"🏛️ Shohona unvon: <b>{get_rank_title(user_place)} ({user_place}-o'rin)</b>\n\n"
+        f"🏛️ Mavqeingiz: <b>{get_rank_title(user_place)} ({user_place}-o'rin)</b>\n\n"
         f"<i>Quyidagi tugmalardan birini tanlang va testni boshlang:</i>"
     )
     bot.send_message(m.chat.id, welcome_text, parse_mode="HTML", reply_markup=main_menu_keyboard())
@@ -146,14 +146,13 @@ def send_next_question(chat_id):
         name = db.get(str(chat_id), {}).get("name", "Foydalanuvchi")
         update_user_stats(chat_id, name, points_to_add=earned_points)
         
-        # Test yakunida faqat shu foydalanuvchining o'zi uchun tartibli shohona reyting chiqadi
         db = load_db()
         sorted_users = sorted(db.items(), key=lambda x: x.get("points", 0), reverse=True)
         user_place = next((i + 1 for i, (uid, _) in enumerate(sorted_users) if uid == str(chat_id)), 999)
         
-        leaderboard = "🏆 <b>SAROY REYTING JADVALI (TOP-5):</b>\n====================\n"
+        leaderboard = "🏆 <b>SHOHONA REYTING JADVALI (TOP-5):</b>\n====================\n"
         for idx, (uid, uinfo) in enumerate(sorted_users[:5]):
-            leaderboard f"{idx+1}. {get_rank_title(idx+1)} | <b>{uinfo.get('name', 'User')}</b> | <code>{uinfo.get('points', 0)} ball</code>\n"
+            leaderboard += f"{idx+1}. {get_rank_title(idx+1)} | <b>{uinfo.get('name', 'User')}</b> | <code>{uinfo.get('points', 0)} ball</code>\n"
         leaderboard += "====================\n"
         
         bot.send_message(
@@ -167,11 +166,11 @@ def send_next_question(chat_id):
 
     item = s["questions"][s["current_index"]]
     if s["type"] == "kanji":
-        question_text = f"🎌 [Savol {s['current_index']+1}/{s['total']}] Ushbu Kanjining to'g'ri o'qilishi va ma'nosini belgilang:"
+        question_text = f"🎯 [Savol {s['current_index']+1}/{s['total']}] Ushbu Kanjining to'g'ri o'qilishi va ma'nosini belgilang:\n\n🔥 Kanji: <b>{item['kanji']}</b>"
         ok = f"{item['reading']} - {item['meaning']}"
         wr = [f"{k['reading']} - {k['meaning']}" for k in kanji_list if k["kanji"] != item["kanji"]]
     else:
-        question_text = f"📝 [Savol {s['current_index']+1}/{s['total']}]\n\n🇯🇵 <b>「{item['jp']}」</b>\n\nUshbu yaponcha so'zning to'g'ri o'zbekcha tarjimasini belgilang:"
+        question_text = f"📝 [Savol {s['current_index']+1}/{s['total']}]\n\n🇯🇵 Yaponcha: <b>「{item['jp']}」</b>\n\nTo'g'ri o'zbekcha tarjimani belgilang:"
         ok = item['uz']
         wr = [w['uz'] for w in words_list if w['jp'] != item['jp']]
 
@@ -182,14 +181,12 @@ def send_next_question(chat_id):
     markup = telebot.types.ReplyKeyboardMarkup(resize_keyboard=True, one_time_keyboard=True)
     for option in opts: markup.add(option)
 
-    if s["type"] == "kanji":
-        if os.path.exists(item["image_path"]):
-            with open(item["image_path"], 'rb') as f:
-                bot.send_photo(chat_id, f, caption=question_text, reply_markup=markup)
-        else:
-            bot.send_message(chat_id, f"🎌 [Savol {s['current_index']+1}/{s['total']}]\n🎯 Kanji: <b>{item['kanji']}</b>\n\nTo'g'ri javobni tanlang:", parse_mode="HTML", reply_markup=markup)
+    if s["type"] == "kanji" and os.path.exists(item["image_path"]):
+        with open(item["image_path"], 'rb') as f:
+            bot.send_photo(chat_id, f, caption=question_text, parse_mode="HTML", reply_markup=markup)
     else:
         bot.send_message(chat_id, question_text, parse_mode="HTML", reply_markup=markup)
+
 @bot.message_handler(func=lambda m: m.chat.id == ADMIN_ID and m.reply_to_message)
 def admin_reply(m):
     try:
@@ -214,7 +211,7 @@ def handle_messages(m):
             output = "🏆 <b>SHOHONA REYTING JADVALI (TOP-10)</b>\n====================\n"
             for idx, (uid, uinfo) in enumerate(sorted_users[:10]):
                 place = idx + 1
-                output f"{place:02d}. {get_rank_title(place)} | <b>{uinfo.get('name', 'User')}</b> | <code>{uinfo.get('points', 0)} ball</code>\n"
+                output += f"{place:02d}. {get_rank_title(place)} | <b>{uinfo.get('name', 'User')}</b> | <code>{uinfo.get('points', 0)} ball</code>\n"
             output += "====================\n"
             output += f"📈 Sizning o'rningiz: <b>{user_place}-o'rin</b>"
             bot.send_message(cid, output, parse_mode="HTML", reply_markup=main_menu_keyboard()); return
@@ -233,7 +230,6 @@ def handle_messages(m):
     if txt == "❓ Adminga murojaat":
         bot.send_message(cid, "✉️ Xabaringizni kiriting:", reply_markup=main_menu_keyboard()); return
 
-    # Test jarayonidagi tugmalarni barqaror tekshirish
     if cid in user_sessions:
         s = user_sessions[cid]
         if txt == s["correct_string"]:
@@ -245,8 +241,7 @@ def handle_messages(m):
         send_next_question(cid)
         return
 
-    # Oddiy xabarlarni adminga yo'naltirish
-    if cid != ADMIN_ID:
+    if not str(cid).startswith("-") and cid != ADMIN_ID:
         bot.forward_message(ADMIN_ID, cid, m.message_id)
         bot.send_message(ADMIN_ID, f"📩 <b>Yangi xabar!</b>\nUser ID: {cid}\n\nJavob berish uchun <b>Reply</b> qiling.", parse_mode="HTML")
         bot.send_message(cid, "⏱ Xabaringiz adminga yetkazildi.")
