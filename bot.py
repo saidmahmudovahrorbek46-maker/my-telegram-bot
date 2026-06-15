@@ -114,6 +114,26 @@ words_list = [
 ]
 def main_menu_keyboard():
     return telebot.types.ReplyKeyboardMarkup(resize_keyboard=True).add("📊 Kanji Test", "📝 So'z Test (N4/N5)").add("🏆 Reyting (Top-10)", "👤 Shaxsiy Profil").add("❓ Adminga murojaat")
+@bot.message_handler(commands=['stats'], func=lambda m: m.chat.id == ADMIN_ID)
+def get_bot_stats(m):
+    db = load_db()
+    total_users = len(db) # JSON ichidagi foydalanuvchilar sonini sanaydi
+    
+    # Ballar bo'yicha eng faol foydalanuvchini topish (ixtiyoriy bonus)
+    if total_users > 0:
+        top_user = max(db.values(), key=lambda x: x.get("points", 0))
+        top_name = top_user.get("name", "Noma'lum")
+        top_points = top_user.get("points", 0)
+        bonus_text = f"🏆 Eng ko'p ball to'plagan: <b>{top_name}</b> ({top_points} ball)"
+    else:
+        bonus_text = "🚫 Hozircha foydalanuvchilar yo'q."
+
+    text = (
+        f"📊 <b>Bot Statistikasi:</b>\n\n"
+        f"👥 Jami foydalanuvchilar: <b>{total_users} ta odam</b>\n"
+        f"{bonus_text}"
+    )
+    bot.send_message(ADMIN_ID, text, parse_mode="HTML")
 
 @bot.message_handler(commands=['start'])
 def start(m):
