@@ -100,7 +100,7 @@ def main_menu_keyboard():
 def start(m):
     user_data = update_user_stats(m.chat.id, m.from_user.first_name, check_streak=True)
     welcome_text = (
-        f"🎌 <b>JLPT N4/N5 Variantli Test Bot v16.1</b>\n\n"
+        f"🎌 <b>JLPT N4/N5 Variantli Test Bot v16.2</b>\n\n"
         f"🔥 Kunlik faollik zanjiri: <b>{user_data['streak']} kun</b>\n"
         f"🏆 Jami ballaringiz: <b>{user_data['points']} ball</b>\n\n"
         f"Pastdagi tugmalardan foydalanib testni boshlang:"
@@ -143,11 +143,10 @@ def send_next_question(chat_id):
     random.shuffle(opts)
     s["correct_string"] = ok
     
+    # 🔥 ENg XAVFSIZ VA TO'G'RI TUGMA TUZILISHI
     markup = telebot.types.ReplyKeyboardMarkup(resize_keyboard=True, one_time_keyboard=True)
-    if len(opts) >= 4:
-        markup.row(opts[:2], opts[2:])
-    else:
-        for o in opts: markup.add(o)
+    for option in opts:
+        markup.add(option)
 
     if s["type"] == "kanji":
         if os.path.exists(item["image_path"]):
@@ -174,10 +173,8 @@ def handle_messages(m):
     
     if txt == "🏆 Reyting (Top-10)" or txt == "👤 Shaxsiy Profil":
         db = load_db()
-        # Foydalanuvchilarni ballari bo'yicha yuqoridan pastga tartiblash
         sorted_users = sorted(db.items(), key=lambda x: x[1].get("points", 0), reverse=True)
         
-        # Foydalanuvchining jonli o'rnini aniqlash
         user_place = 999
         for index, (uid, uinfo) in enumerate(sorted_users):
             if uid == str(cid):
@@ -188,20 +185,16 @@ def handle_messages(m):
             output = "🏆 <b>Shohona Jonli Reyting:</b>\n\n"
             for idx, (uid, uinfo) in enumerate(sorted_users[:10]):
                 place = idx + 1
-                # O'rniga qarab shohona unvonlar
                 if place == 1: lvl = "👑 Qirol"
                 elif place == 2: lvl = "📜 Vazir"
                 elif place <= 4: lvl = "⚔️ Amir"
                 elif place <= 6: lvl = "🛡️ Sohibqiron"
                 else: lvl = "👨‍🌾 Fuqaro"
-                
                 output += f"{place}. <b>{uinfo.get('name', 'User')}</b> — <code>{uinfo.get('points', 0)} ball</code> ({lvl})\n"
             bot.send_message(cid, output, parse_mode="HTML", reply_markup=main_menu_keyboard()); return
             
         if txt == "👤 Shaxsiy Profil":
             u = db.get(str(cid), {"name": m.from_user.first_name, "points": 0, "streak": 0})
-            
-            # Shaxsiy kabinetda unvon matnlari
             if user_place == 1:
                 rank_title = "👑 <b>Qirol — Siz mutloq shohsiz!</b>"
                 next_rank = "🎯 Taxtni hech kimga bermang!"
