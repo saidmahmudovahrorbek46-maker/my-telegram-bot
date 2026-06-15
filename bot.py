@@ -113,8 +113,15 @@ words_list = [
     {"jp": "いけん", "uz": "fikr", "level": "N4"}, {"jp": "いそがしい", "uz": "band", "level": "N5"},
     {"jp": "いたい", "uz": "og'riqli", "level": "N5"}, {"jp": "いちば", "uz": "bozor", "level": "N4"}
 ]
-def main_menu_keyboard():
-    return telebot.types.ReplyKeyboardMarkup(resize_keyboard=True).add("📊 Kanji Test", "📝 So'z Test (N4/N5)").add("🏆 Reyting (Top-10)", "👤 Shaxsiy Profil").add("❓ Adminga murojaat")
+def main_menu_keyboard(user_id):
+    markup = telebot.types.ReplyKeyboardMarkup(resize_keyboard=True)
+    markup.add("📊 Kanji Test", "📝 So'z Test (N4/N5)")
+    markup.add("🏆 Reyting (Top-10)", "👤 Shaxsiy Profil")
+    markup.add("❓ Adminga murojaat")
+    # Faqat admin kirganda menyuning eng tagiga maxsus tugmalar qo'shiladi
+    if user_id == ADMIN_ID:
+        markup.add("📊 Admin: Statistika", "📣 Admin: Xabar Yuborish")
+    return markup
 
 @bot.message_handler(commands=['stats'], func=lambda m: m.chat.id == ADMIN_ID)
 def get_bot_stats(m):
