@@ -1,6 +1,6 @@
 import telebot, random, os, json, datetime
 
-bot = telebot.TeleBot("8992035812:AAHR6ixhqDqZ9nzW_kynOu_Jluy0cvpSdd8")
+bot = telebot.TeleBot("8992035812:AAE0rGeTagE0CaxnjkiSyV3ZdgAgH6vlsTw")
 ADMIN_ID = 7523074495  
 user_sessions = {}
 DB_FILE = "bot_users.json"
