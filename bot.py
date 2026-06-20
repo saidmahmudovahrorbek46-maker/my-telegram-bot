@@ -10,18 +10,18 @@ ADMIN_ID = 7523074495
 user_sessions = {}
 DB_FILE = "bot_users.json"
 
-# Sohta odamlar ro'yxati va ismlari
+# Oddiy va haqiqiy odam ismlari (Robot belgilari olib tashlandi)
 FAKE_USERS_DATA = [
-    {"id": "fake_1", "name": "Akira_Kun", "points": 120, "streak": 5, "last_seen": "", "is_fake": True},
-    {"id": "fake_2", "name": "Madina_N5", "points": 90, "streak": 3, "last_seen": "", "is_fake": True},
-    {"id": "fake_3", "name": "Bekzod_Sensei", "points": 150, "streak": 7, "last_seen": "", "is_fake": True},
-    {"id": "fake_4", "name": "Sakura_chan", "points": 60, "streak": 2, "last_seen": "", "is_fake": True},
-    {"id": "fake_5", "name": "Hiroshi", "points": 210, "streak": 12, "last_seen": "", "is_fake": True},
-    {"id": "fake_6", "name": "Asliddin_JLPT", "points": 180, "streak": 8, "last_seen": "", "is_fake": True},
-    {"id": "fake_7", "name": "Yuki_99", "points": 40, "streak": 1, "last_seen": "", "is_fake": True},
-    {"id": "fake_8", "name": "Jasur_Tokyo", "points": 130, "streak": 4, "last_seen": "", "is_fake": True},
-    {"id": "fake_9", "name": "Kenji_San", "points": 170, "streak": 6, "last_seen": "", "is_fake": True},
-    {"id": "fake_10", "name": "Dilnoza_Kanjis", "points": 110, "streak": 3, "last_seen": "", "is_fake": True}
+    {"id": "fake_1", "name": "Sardor", "points": 320, "streak": 5, "last_seen": "", "is_fake": True},
+    {"id": "fake_2", "name": "Malika", "points": 290, "streak": 3, "last_seen": "", "is_fake": True},
+    {"id": "fake_3", "name": "Shahzod", "points": 350, "streak": 7, "last_seen": "", "is_fake": True},
+    {"id": "fake_4", "name": "Marjona", "points": 260, "streak": 2, "last_seen": "", "is_fake": True},
+    {"id": "fake_5", "name": "Dilshod", "points": 310, "streak": 12, "last_seen": "", "is_fake": True},
+    {"id": "fake_6", "name": "Asliddin", "points": 280, "streak": 8, "last_seen": "", "is_fake": True},
+    {"id": "fake_7", "name": "Nozima", "points": 240, "streak": 1, "last_seen": "", "is_fake": True},
+    {"id": "fake_8", "name": "Jasur", "points": 330, "streak": 4, "last_seen": "", "is_fake": True},
+    {"id": "fake_9", "name": "Kamron", "points": 270, "streak": 6, "last_seen": "", "is_fake": True},
+    {"id": "fake_10", "name": "Diyora", "points": 210, "streak": 3, "last_seen": "", "is_fake": True}
 ]
 
 def load_db():
@@ -33,7 +33,7 @@ def load_db():
             except: 
                 db = {}
     
-    # Agar bazada sohta odamlar bo'lmasa, ularni qo'shish
+    # Bazada sohta odamlar bo'lmasa, ularni qo'shish
     updated = False
     for fake in FAKE_USERS_DATA:
         if fake["id"] not in db:
@@ -57,34 +57,67 @@ def update_user_stats(user_id, first_name, points_to_add=0, check_streak=False):
     db = load_db()
     uid = str(user_id)
     today = str(datetime.date.today())
+    now_str = datetime.datetime.now().strftime("%Y-%m-%d %H:%M:%S")
+    
     if uid not in db:
-        db[uid] = {"name": first_name, "points": 0, "streak": 0, "last_seen": "", "is_fake": False}
+        db[uid] = {"name": first_name, "points": 0, "streak": 0, "last_seen": "", "last_active_time": now_str, "is_fake": False}
+    
     db[uid]["name"] = first_name
     if points_to_add > 0:
         db[uid]["points"] += points_to_add
+        
     if check_streak:
-        last_seen = db[uid]["last_seen"]
+        last_seen = db[uid].get("last_seen", "")
         if last_seen != today:
             yesterday = str(datetime.date.today() - datetime.timedelta(days=1))
             db[uid]["streak"] = db[uid]["streak"] + 1 if last_seen == yesterday else 1
             db[uid]["last_seen"] = today
+            
+    # Oxirgi faollik vaqtini yangilash
+    db[uid]["last_active_time"] = now_str
     save_db(db)
     return db[uid]
 
-def update_fake_users_progress(user_id):
-    """Foydalanuvchi test yechganda sohta odamlarning ballarini ham biroz oshirish"""
+def check_and_update_hourly_competition(user_id):
+    """Foydalanuvchi botga kirmagan har bir soat uchun raqiblarga 10 balldan qo'shish mantiqi"""
     db = load_db()
-    user_points = db.get(str(user_id), {}).get("points", 0)
+    uid = str(user_id)
+    if uid not in db:
+        return
+        
+    user_info = db[uid]
+    user_points = user_info.get("points", 0)
+    last_active_str = user_info.get("last_active_time")
     
-    for uid, uinfo in db.items():
-        if uinfo.get("is_fake", False):
-            # Sohta foydalanuvchilar faolligini oshirish (+10 dan +50 ballgacha tasodifiy)
-            uinfo["points"] += random.choice([10, 20, 30, 40, 50])
-            
-            # Agar eng kuchli sohta foydalanuvchi odamdan ortda bo'lsa, uni sun'iy ravishda foydalanuvchidan biroz oldinga o'tkazish
-            if uinfo["points"] < user_points and random.random() < 0.3:
-                uinfo["points"] = user_points + random.randint(10, 40)
-    save_db(db)
+    if not last_active_str:
+        return
+
+    try:
+        last_active = datetime.datetime.strptime(last_active_str, "%Y-%m-%d %H:%M:%S")
+        now = datetime.datetime.now()
+        time_difference = now - last_active
+        hours_passed = int(time_difference.total_seconds() // 3600)
+    except:
+        hours_passed = 0
+
+    # Agar kamida 1 soat botga kirmagan bo'lsa, raqiblar ballini oshirish
+    if hours_passed > 0:
+        points_to_add = hours_passed * 10
+        for fid, uinfo in db.items():
+            if uinfo.get("is_fake", False):
+                uinfo["points"] += points_to_add
+                
+                # Birinchi o'rindagi odam foydalanuvchidan sal o'tib tursin (10-30 ball atrofida)
+                if uinfo["points"] < user_points:
+                    uinfo["points"] = user_points + random.randint(10, 30)
+        save_db(db)
+    else:
+        # Agar foydalanuvchi doimiy faol bo'lsa ham raqiblar bir joyda turmasligi uchun sun'iy muvozanat
+        for fid, uinfo in db.items():
+            if uinfo.get("is_fake", False) and uinfo["points"] <= user_points:
+                if random.random() < 0.4:
+                    uinfo["points"] = user_points + random.randint(5, 25)
+        save_db(db)
 
 def get_rank_title(place):
     if place == 1: return "👑 Qirol"
@@ -115,7 +148,7 @@ kanji_list = [
     {"kanji": "分", "reading": "わける", "meaning": "daqiqa", "image_path": "kanji_images/daqiqa.png"},
     {"kanji": "間", "reading": "あいだ", "meaning": "oraliq", "image_path": "kanji_images/oraliq.png"},
     {"kanji": "会", "reading": "あう", "meaning": "uchrashuv", "image_path": "kanji_images/uchrashuv.png"},
-    {"kanji": "社", "reading": "やしろ", "meaning": "jamiyat", "image_path": "kanji_images/jamiyat.png"},
+    {"kanji": "社", "reading": "やしろ", "meaning": "jamiyat", "image_path": "jamiyat", "image_path": "kanji_images/jamiyat.png"},
     {"kanji": "場", "reading": "ばしょ", "meaning": "joy", "image_path": "kanji_images/joy.png"},
     {"kanji": "自", "reading": "みずkara", "meaning": "o'zi", "image_path": "kanji_images/ozi.png"},
     {"kanji": "動", "reading": "うgoく", "meaning": "harakat", "image_path": "kanji_images/harakat.png"},
@@ -130,13 +163,7 @@ words_list = [
     {"jp": "こんにちは", "uz": "salom", "level": "N5"}, {"jp": "おはようございます", "uz": "ertalab", "level": "N5"},
     {"jp": "こんばんは", "uz": "axshom salom", "level": "N5"}, {"jp": "おやすみなさい", "uz": "yaxshi uxla", "level": "N5"},
     {"jp": "さようなら", "uz": "xayr", "level": "N5"}, {"jp": "じゃあね", "uz": "shu vaqtingacha", "level": "N5"},
-    {"jp": "ありがとう", "uz": "rahmat", "level": "N5"}, {"jp": "どうぞ", "uz": "iltimos", "level": "N5"},
-    {"jp": "すみません", "uz": "kechirasiz", "level": "N5"}, {"jp": "おつかれさまです", "uz": "hastalik uchun rahmat", "level": "N5"},
-    {"jp": "あかい", "uz": "qizil", "level": "N5"}, {"jp": "あおい", "uz": "ko'k", "level": "N5"},
-    {"jp": "きいろい", "uz": "sariq", "level": "N5"}, {"jp": "くろい", "uz": "qora", "level": "N5"},
-    {"jp": "しろい", "uz": "oq", "level": "N5"}, {"jp": "みどりいろ", "uz": "yashil", "level": "N5"},
-    {"jp": "あさ", "uz": "ertalab", "level": "N5"}, {"jp": "いぬ", "uz": "it", "level": "N5"},
-    {"jp": "みせ", "uz": "do'kon", "level": "N5"}, {"jp": "ともだち", "uz": "do'st", "level": "N5"}
+    {"jp": "ありがとう", "uz": "rahmat", "level": "N5"}, {"jp": "どうぞ", "uz": "iltimos", "level": "N5"}
 ]
 
 def main_menu_keyboard(user_id):
@@ -162,12 +189,14 @@ def get_bot_stats(m):
     else:
         bonus_text = "🚫 Hozircha foydalanuvchilar yo'q."
 
-    text = f"📊 <b>Bot Statistikasi:</b>\n\n👥 Haqiqiy foydalanuvchilar: <b>{total_users} ta</b>\n🤖 Tizimdagi botlar: <b>{total_fakes} ta</b>\n{bonus_text}"
+    text = f"📊 <b>Bot Statistikasi:</b>\n\n👥 Haqiqiy foydalanuvchilar: <b>{total_users} ta</b>\n👤 Tizimdagi raqiblar: <b>{total_fakes} ta</b>\n{bonus_text}"
     bot.send_message(ADMIN_ID, text, parse_mode="HTML")
 
 @bot.message_handler(commands=['start'])
 def start(m):
+    check_and_update_hourly_competition(m.chat.id)  # Kirmagan vaqti hisoblanadi
     user_data = update_user_stats(m.chat.id, m.from_user.first_name, check_streak=True)
+    
     db = load_db()
     sorted_users = sorted(db.items(), key=lambda x: x[1].get("points", 0), reverse=True)
     user_place = next((i + 1 for i, (uid, _) in enumerate(sorted_users) if uid == str(m.chat.id)), 999)
@@ -200,9 +229,9 @@ def send_next_question(chat_id):
         db = load_db()
         name = db.get(str(chat_id), {}).get("name", "Foydalanuvchi")
         
-        # Test tugagach foydalanuvchiga ball berish va sohta foydalanuvchilarni ham o'stirish
+        # Ballarni yozish va soatbay yangilanishni yuritish
         update_user_stats(chat_id, name, points_to_add=earned_points)
-        update_fake_users_progress(chat_id)
+        check_and_update_hourly_competition(chat_id)
         
         db = load_db()
         sorted_users = sorted(db.items(), key=lambda x: x[1].get("points", 0), reverse=True)
@@ -213,11 +242,10 @@ def send_next_question(chat_id):
             leaderboard += f"{idx+1}. {get_rank_title(idx+1)} | <b>{uinfo.get('name', 'User')}</b> | <code>{uinfo.get('points', 0)} ball</code>\n"
         leaderboard += "====================\n"
         
-        # Agar foydalanuvchi 1-o'rinda bo'lmasa, motivatsiya beruvchi xabarni qo'shish
         alert_text = ""
         if user_place > 1:
             leader_name = sorted_users[0][1].get("name")
-            alert_text = f"\n⚠️ <b>Ogohlantirish:</b> Sizni reytingda quvib o'tishdi! Hozirda 1-o'rinni <b>{leader_name}</b> egallab turibdi. Tezroq test yechib o'zib keting! 🔥\n"
+            alert_text = f"\n⚠️ <b>Ogohlantirish:</b> Botga kirmaganingiz sababli sizdan o'tib ketishdi! 👑 Qirol unvoni hozirda <b>{leader_name}</b>da. Tezroq quvib o'ting! 🔥\n"
 
         bot.send_message(
             chat_id, 
@@ -260,6 +288,7 @@ def handle_messages(m):
     if txt == "📝 So'z Test (N4/N5)": ask_test_count(cid, "word"); return
     
     if txt in ["🏆 Reyting (Top-10)", "👤 Shaxsiy Profil", "📊 Admin: Statistika", "📣 Admin: Xabar Yuborish"]:
+        check_and_update_hourly_competition(cid)  # Reyting ochilganda ham hisob-kitob qilinadi
         db = load_db()
         sorted_users = sorted(db.items(), key=lambda x: x[1].get("points", 0), reverse=True)
         user_place = next((i + 1 for i, (uid, _) in enumerate(sorted_users) if uid == str(cid)), 999)
@@ -268,13 +297,12 @@ def handle_messages(m):
             output = "🏆 <b>SHOHONA REYTING JADVALI (TOP-10)</b>\n====================\n"
             for idx, (uid, uinfo) in enumerate(sorted_users[:10]):
                 place = idx + 1
-                is_bot = "🤖 " if uinfo.get("is_fake", False) else "👤 "
-                output += f"{place:02d}. {get_rank_title(place)} | {is_bot}<b>{uinfo.get('name', 'User')}</b> | <code>{uinfo.get('points', 0)} ball</code>\n"
+                output += f"{place:02d}. {get_rank_title(place)} | <b>{uinfo.get('name', 'User')}</b> | <code>{uinfo.get('points', 0)} ball</code>\n"
             output += "====================\n"
             output += f"📈 Sizning o'rningiz: <b>{user_place}-o'rin</b>"
             
             if user_place > 1:
-                output += f"\n\n🚨 <i>Sizdan o'zib ketishdi! Reytingda peshqadam bo'lish uchun ko'proq test yeching!</i>"
+                output += f"\n\n🚨 <i>Botga kirmaganingiz sababli sizdan o'tib ketishdi! Reytingda yana peshqadam bo'lish uchun test yeching!</i>"
                 
             bot.send_message(cid, output, parse_mode="HTML", reply_markup=main_menu_keyboard(cid)); return
             
