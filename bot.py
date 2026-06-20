@@ -173,12 +173,11 @@ def start(m):
         f"🏛️ Mavqeingiz: <b>{get_rank_title(user_place)} ({user_place}-o'rin)</b>\n\n"
         f"<i>Quyidagi tugmalardan birini tanlang va testni boshlang:</i>"
     )
-    bot.send_message(m.chat.id, welcome_text, parse_mode="HTML", reply_markup=main_menu_keyboard())
+    bot.send_message(m.chat.id, welcome_text, parse_mode="HTML", reply_markup=main_menu_keyboard(m.chat.id))
 
 def ask_test_count(chat_id, mode):
     m = bot.send_message(chat_id, "📊 Nechta test yechasiz?", reply_markup=telebot.types.ReplyKeyboardMarkup(resize_keyboard=True, one_time_keyboard=True).add("5", "10", "15", "20"))
     bot.register_next_step_handler(m, lambda msg: start_quiz_session(msg, mode))
-
 def start_quiz_session(m, mode):
     try: total = int(m.text.strip())
     except: total = 5
@@ -209,7 +208,7 @@ def send_next_question(chat_id):
             f"🎉 <b>Test yakunlandi!</b>\n✅ Natijangiz: <b>{s['correct_count']}/{s['total']} ta</b>\n💰 Bonus: <b>+{earned_points} ball</b>\n"
             f"📈 Joriy o'rningiz: <b>{user_place}-o'rin</b>\n\n" + leaderboard, 
             parse_mode="HTML", 
-            reply_markup=main_menu_keyboard()
+            reply_markup=main_menu_keyboard(chat_id)
         )
         if chat_id in user_sessions: del user_sessions[chat_id]
         return
@@ -259,7 +258,7 @@ def handle_messages(m):
     if txt == "📊 Kanji Test": ask_test_count(cid, "kanji"); return
     if txt == "📝 So'z Test (N4/N5)": ask_test_count(cid, "word"); return
     
-    if txt in ["🏆 Reyting (Top-10)", "👤 Shaxsiy Profil"]:
+    if txt in ["🏆 Reyting (Top-10)", "👤 Shaxsiy Profil", "📊 Admin: Statistika", "📣 Admin: Xabar Yuborish"]:
         db = load_db()
         sorted_users = sorted(db.items(), key=lambda x: x[1].get("points", 0), reverse=True)
         user_place = next((i + 1 for i, (uid, _) in enumerate(sorted_users) if uid == str(cid)), 999)
@@ -271,7 +270,7 @@ def handle_messages(m):
                 output += f"{place:02d}. {get_rank_title(place)} | <b>{uinfo.get('name', 'User')}</b> | <code>{uinfo.get('points', 0)} ball</code>\n"
             output += "====================\n"
             output += f"📈 Sizning o'rningiz: <b>{user_place}-o'rin</b>"
-            bot.send_message(cid, output, parse_mode="HTML", reply_markup=main_menu_keyboard()); return
+            bot.send_message(cid, output, parse_mode="HTML", reply_markup=main_menu_keyboard(cid)); return
             
         if txt == "👤 Shaxsiy Profil":
             u = db.get(str(cid), {"name": m.from_user.first_name, "points": 0, "streak": 0})
@@ -282,10 +281,16 @@ def handle_messages(m):
                 f"• Faollik zanjiri: <b>{u['streak']} kun</b>\n"
                 f"• Joriy unvon: <b>{get_rank_title(user_place)} ({user_place}-o'rin)</b>\n===================="
             )
-            bot.send_message(cid, output, parse_mode="HTML", reply_markup=main_menu_keyboard()); return
+            bot.send_message(cid, output, parse_mode="HTML", reply_markup=main_menu_keyboard(cid)); return
+
+        if txt == "📊 Admin: Statistika" and cid == ADMIN_ID:
+            get_bot_stats(m); return
+
+        if txt == "📣 Admin: Xabar Yuborish" and cid == ADMIN_ID:
+            send_all_prompt(m); return
 
     if txt == "❓ Adminga murojaat":
-        bot.send_message(cid, "✉️ Xabaringizni kiriting. Admin tez orada javob beradi:", reply_markup=main_menu_keyboard())
+        bot.send_message(cid, "✉️ Xabaringizni kiriting. Admin tez orada javob beradi:", reply_markup=main_menu_keyboard(cid))
         return
 
     if cid in user_sessions:
