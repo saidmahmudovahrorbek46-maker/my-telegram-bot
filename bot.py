@@ -312,5 +312,4 @@ def handle_messages(m):
 if __name__ == "__main__":
     bot.remove_webhook()
     print("Bot muvaffaqiyatli ishga tushdi...")
-    save_db(load_db())
     bot.infinity_polling()
